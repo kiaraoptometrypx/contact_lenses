@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Kiara Optometry Contact Lens Search</title>
+<meta name="viewport" content="width=device-width, initial-scale=1=" />
+<style>
+/* === Lightbox (shared) === */
+#imgZoom{position:fixed;inset:0;display:none;background:rgba(0,0,0,.75);align-items:center;justify-content:center;z-index:10000;cursor:zoom-out}
+#imgZoom.open{display:flex}
+#imgZoom .inner{position:relative}
+#imgZoom .hint{position:absolute;right:8px;bottom:-22px;color:#eee;font-size:11px;user-select:none}
+#zoomCardBox{display:none;max-width:920px;width:46vw;background:#ffffe0;border:1px solid #d7d7cf;border-radius:14px;padding:14px;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+
+/* ========= Base ========= */
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:12px;line-height:1.3;margin:0;background:#f8f8f5;color:#0b3d2e}
+h1{font-size:30px;text-align:center;margin:10px 0 12px}
+h2{font-size:15px;margin:6px 0 8px}
+
+
+/* ========= Layout ========= */
+.container{max-width:1100px;margin:0 auto;padding:40px}
+.wrap{width:100%;min-width:300px}
+
+/* ========= Sections ========= */
+.section{background:#ffffe0;border:1px solid #d7d7cf;border-radius:10px;padding:8px;margin:8px 0}
+.section2{background:#f5f5b5;border:1px solid #d7d7cf;border-radius:10px;padding:8px;margin:8px 0}
+.section3{background:#fff;border:1px solid #d7d7cf;border-radius:10px;padding:8px;margin:8px 0}
+
+.lens-card{padding:12px;border:1px solid #d7d7cf;border-radius:10px;background:#ffffe0;box-shadow:0 1px 0 rgba(0,0,0,.04);transition:box-shadow .15s ease,transform .15s ease;cursor:pointer}
+.lens-card:hover{box-shadow:0 4px 10px rgba(0,0,0,.06);transform:translateY(-1px)}
+
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px 12px}
+label{display:block}
+input[type="checkbox"]{margin-right:4px}
+
+/* ========= Results ========= */
+.results{margin-top:12px}
+#sortBar{margin:8px 0;padding:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#cardsGrid{display:grid;grid-template-columns:repeat(3,minmax(220px,1fr));gap:10px}
+
+/* Compact card inner layout */
+.card-compact{display:flex;flex-direction:column;gap:6px}
+.card-compact .photo img{width:350px;max-width:100%;height:auto;border:1px solid #ccc;border-radius:10px;cursor:default}
+
+/* Expanded layout INSIDE LIGHTBOX */
+.zoom-card-flex{display:flex;flex-direction:column;gap:12px}
+.zoom-card-flex .photo img{width:700px;max-width:100%;height:auto;border:1px solid #ccc;border-radius:10px;cursor:default}
+.zoom-card-flex .details{display:flex;flex-direction:column;gap:8px}
+
+/* Promo ribbon */
+.promo-badge {
+  position: static !important;
+  margin-top: 8px;
+  text-align: center;
+  background: #d60000;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 400;
+  display: inline-block;
+  padding: 3px 8px;
+  box-shadow: none;
+}
+
+
+/* Buttons */
+button{background:#0b3d2e;color:#fff;border:none;padding:6px 12px;border-radius:10px;cursor:pointer}
+button:disabled{background:#999;cursor:not-allowed}
+button:hover:not(:disabled){background:#095c42}
+
+/* Search bars row */
+.search-row{display:flex;gap:4%;margin:12px 0}
+.search-row input{flex:1;padding:6px;font-size:12px}
+
+/* 🔒 Overlay for blackout */
+#overlay{position:fixed;inset:0;background:#EDEADF;color:black;display:flex;align-items:center;justify-content:center;font-size:1.2rem;z-index:9999}
+
+/* Checkboxes */
+input[type="checkbox"]{accent-color:#0b3d2e}
+input[type="checkbox"]:hover{filter:brightness(1.1)}
+input[type="checkbox"]:focus{outline:2px solid #0b3d2e33;outline-offset:2px}
+
+/* Pro mode */
+.simple-hide{display:none!important}
+
+/* Tap-to-expand term */
+.def-term{cursor:pointer;text-decoration:underline dotted}
+.def-row .def-extra{display:none;margin:6px 0 0 0;font-weight:400} /* long text NOT bold */
+
+/* RX icons row */
+.rx-icons{display:flex;gap:10px;align-items:center;margin-top:8px}
+.rx-icons img{max-height:auto;max-width:70%;border:1px solid #ccc;border-radius:6px;padding:2px;background:#fff}
+
+/* Responsive */
+@media (max-width:900px){#cardsGrid{grid-template-columns:repeat(2,minmax(220px,1fr))}}
+@media (max-width:550px){#cardsGrid{grid-template-columns:1fr}}
+
+
+
+
+</style>
+</head>
+<body>
+
+<!-- 🔒 Locked screen -->
+<div style="font-size:10px" id="overlay">🔒 Entering password...</div>
+
+
+
+
+
+<!-- Main content (hidden until password ok) -->
+<div class="container" id="content" style="display:none;">
+
+
+
+<div style="height:200px"></div>
+  <h1>
+    Kiara Optometry Contact Lens Search<br><br>
+
+
+
+  </h1>
+
+
+<div class="section">
+<div class="section3">
+
+<h2 style="margin-left:1%"> Check some boxes then you'll find your lens! </h2>
+
+    <!-- Q1: Clear or Colour -->
+    <div class="section" id="q1">
+      <h2>Clear or coloured lenses?</h2>
+      <div class="options">
+        <label><input type="checkbox" name="q1" value="CLEAR">Clear</label>
+        <label><input type="checkbox" name="q1" value="COLOUR">Colour</label>
+      </div>
+    </div>
+
+    <!-- Q2: Modality -->
+    <div class="section" id="q2">
+      <h2>What type of disposable?</h2>
+      <div class="options">
+        <label><input type="checkbox" name="q2" value="1 Day">1 Day</label>
+        <label><input type="checkbox" name="q2" value="2 Weeks">2 Weeks</label>
+        <label><input type="checkbox" name="q2" value="1 Month">1 Month</label>
+        <label><input type="checkbox" name="q2" value="3 Months">3 Months</label>
+      </div>
+    </div>
+
+    <!-- Q3: Vision (+ RX icons toggle) -->
+    <div class="section" id="q3">
+      <h2>What type of prescription (RX)? <span id="rxToggleBtn" style="user-select:none; font-size:12px"><u>See examples of types of RX</u> </span></h2>
+      <div style="margin-top:8px;">
+
+      <div id="rxIcons" class="rx-icons" style="display:none;">
+<label>
+  <img src="https://raw.githubusercontent.com/kiaraoptometrypx/CL-SELECTOR/main/SPH.png" alt="SPH"><br><br>
+  SPH lenses only have one prescription, e.g. -5.00 which is indicated by D.
+</label>
+
+<label>
+  <img src="https://raw.githubusercontent.com/kiaraoptometrypx/CL-SELECTOR/main/ASTIG.png" alt="ASTIG"><br><br>
+  ASTIG lenses have 2 extra prescription, e.g. -1.75 and 030.
+</label>
+
+<label>
+  <img src="https://raw.githubusercontent.com/kiaraoptometrypx/CL-SELECTOR/main/MF.png" alt="MF"><br><br>
+  MF lenses have ADD prescription, e.g. MID (or LOW or HI).
+</label>
+
+
+      </div>
+</div>
+      <div style="margin-top:8px;"></div>
+
+      <div class="options">
+        <label><input type="checkbox" name="q3" value="SPH">Short or Far Sighted (SPH)</label>
+        <label><input type="checkbox" name="q3" value="ASTIG">With Astigmatism (ASTIG)</label>
+        <label><input type="checkbox" name="q3" value="MF">Multi-focal (MF)</label>
+      </div>
+    </div>
+
+    <!-- Q6: Packing -->
+    <div class="section" id="q6">
+      <h2>Types of Packing?</h2>
+      <div class="options">
+        <label><input type="checkbox" name="q6" value="LOOSE">Travel Packs</label>
+        <label><input type="checkbox" name="q6" value="NOT_LOOSE">Boxes</label>
+      </div>
+    </div>
+
+    <div class="section2" style="text-align:center; margin-bottom:10px;">
+      <button id="modeToggleBtn" style="font-size:12px">Switch to Professional Mode</button>
+
+
+    </div>
+
+
+
+
+
+    <!-- Q4: Comfort -->
+    <div class="section2" id="q4">
+      <h2>Comfort level?</h2>
+      <div class="options">
+        <label><input type="checkbox" name="q4" value="BASIC">Basic</label>
+        <label><input type="checkbox" name="q4" value="GOOD">Good</label>
+        <label><input type="checkbox" name="q4" value="PREMIUM">Premium</label>
+      </div>
+    </div>
+
+    <!-- Q5: Material -->
+    <div class="section2" id="q5">
+      <h2>Material type?</h2>
+      <div class="options">
+        <label><input type="checkbox" name="q5" value="HYDROGEL">Hydrogel (Standard Oxygen)</label>
+        <label><input type="checkbox" name="q5" value="SILICONE HYDROGEL">Silicone Hydrogel (High Oxygen)</label>
+      </div>
+    </div>
+
+    <!-- Converter (Pro mode can hide/show) -->
+    <div class="section2" id="specToCL">
+      <h2>Spectacle → Contact Lens Power Converter</h2>
+
+      <!-- Input Row -->
+      <div style="display:flex; align-items:flex-end; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <b>RE Specs :</b>
+          Sph <input id="sph-re" type="number" step="0.25" style="width:70px;text-align:center">
+          Cyl <input id="cyl-re" type="number" step="0.25" style="width:70px;text-align:center">
+          Axis <input id="axis-re" type="number" min="0" max="180" step="1" style="width:70px;text-align:center">
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <b>LE Specs :</b>
+          Sph <input id="sph-le" type="number" step="0.25" style="width:70px;text-align:center">
+          Cyl <input id="cyl-le" type="number" step="0.25" style="width:70px;text-align:center">
+          Axis <input id="axis-le" type="number" min="0" max="180" step="1" style="width:70px;text-align:center">
+        </div>
+
+        <button id="convertBtn">Convert</button>
+      </div>
+
+      <!-- Results + Auto-fill Panel -->
+      <div style="display:flex; gap:15px; margin-top:12px; align-items:flex-start; flex-wrap:wrap;">
+        <div id="clOut" class="lens-card"
+            style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:10px;
+                    background:#fffff0; border:1px solid #ccc; border-radius:10px; padding:12px;">
+          <div>
+            <div style="font-weight:700;margin-bottom:6px;">RE Results</div>
+            <div id="reResult"></div>
+          </div>
+          <div>
+            <div style="font-weight:700;margin-bottom:6px;">LE Results</div>
+            <div id="leResult"></div>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button id="auto1">Auto-fill 1</button>
+          <button id="auto2">Auto-fill 2</button>
+          <button id="auto3">Auto-fill 3</button>
+          <button id="autoSE">Auto-fill SE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="section" id="searchSec">
+      <div style="display:flex; gap:15px; margin-top:12px; align-items:flex-start; flex-wrap:wrap;">
+        <span><b>Search Manually: *Hint*</b> Search Toric RX by typing in this format: S-5.00 C-1.25 x180</span>
+      </div>
+      <div class="search-row">
+        <input type="text" id="searchRE" placeholder="Search Bar Right">
+        <input type="text" id="searchLE" placeholder="Search Bar Left (Use if needed)">
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="section" id="actionsSec">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <button id="promoBtn" style="font-size:12px" disabled>Show Promo Only</button>
+        <div style="height:10px"></div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <button id="showBtn" style="font-size:12px" disabled>Loading...</button>
+          <span id="btnText" style="opacity:0.8;"></span>
+<button id="resetBtn" style="font-size:12px">Reset / Clear All</button>
+        </div>
+
+
+    <!-- Sort bar + Results -->
+    <div id="sortBar">
+      <b>Sort:</b>
+      <select id="sortSelect" style="padding:4px; font-size:12px; border-radius:10px">
+        <option value="price-asc">Price Low → High</option>
+        <option value="price-desc">Price High → Low</option>
+        <option value="valuepair-asc">Value/Pair Low → High</option>
+        <option value="valuepair-desc">Value/Pair High → Low</option>
+        <option value="comfort-desc">Comfort Premium → Basic</option>
+        <option value="comfort-asc">Comfort Basic → Premium</option>
+        <option value="hours-desc">Wearing hours Long → Short</option>
+        <option value="hours-asc">Wearing hours Short → Long</option>
+      </select>
+    </div>
+      </div>
+    </div>
+
+<div id="compareArea"></div>
+
+
+    <div class="results" id="results">
+      <div id="cardsGrid"></div>
+<span style="margin-left:1%"><b>Results shown here after clicking 'Show Results'<b></span>
+
+    </div>
+
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+<script>
+/* =========================
+   Password overlay
+========================= */
+(function(){
+  const overlay=document.getElementById("overlay");
+  const content=document.getElementById("content");
+  function checkPassword(){
+    let password=""; const correctPassword="";
+    while(password!==correctPassword){
+      password=prompt("Please enter password to use:");
+      if(password===null){ overlay.textContent="Sorry, Access Denied."; return false; }
+      if(password!==correctPassword) alert("Wrong password. Try again.");
+    }
+    return true;
+  }
+  window.addEventListener("load",()=>{ if(checkPassword()){ overlay.style.display="none"; content.style.display="block"; }});
+})();
+</script>
+
+<script>
+/* =========================
+   Tap-to-expand binding (short label stays; long appears below, not bold)
+========================= */
+function bindDefToggles(scope=document){
+  scope.querySelectorAll('.def-term').forEach(el=>{
+    if(el.dataset.ready) return;
+    el.dataset.ready="1";
+    let extra=el.parentElement.querySelector('.def-extra');
+    if(!extra){
+      extra=document.createElement('div');
+      extra.className='def-extra';
+      el.parentElement.appendChild(extra);
+    }
+    el.addEventListener('click',()=>{
+      const open=extra.style.display==='block';
+      if(open){ extra.style.display='none'; extra.innerHTML=''; }
+      else { extra.innerHTML=el.dataset.long || ''; extra.style.display='block'; }
+    });
+  });
+}
+</script>
+
+<script>
+/* =========================
+   RESULTS ENGINE (CSV → Filters → Cards → Lightbox)
+========================= */
+const csvUrl='https://raw.githubusercontent.com/kiaraoptometrypx/CL-SELECTOR/main/CL%20DATABASE.csv';
+
+let products=[]; let csvLoaded=false;
+
+const showBtn=document.getElementById('showBtn');
+const promoBtn=document.getElementById('promoBtn');
+const btnText=document.getElementById('btnText');
+const sortBar=document.getElementById('sortBar');
+const sortSelect=document.getElementById('sortSelect');
+
+const rxToggleBtn=document.getElementById('rxToggleBtn');
+const rxIcons=document.getElementById('rxIcons');
+
+/* RX images toggle */
+rxToggleBtn?.addEventListener('click',()=>{
+  rxIcons.style.display=(rxIcons.style.display==='none'||rxIcons.style.display==='')?'flex':'none';
+});
+
+/* CSV parsing */
+function parseCSV(text){
+  const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(l=>l.trim()!=='');
+  if(lines.length<2) return {headers:[],rows:[]};
+  const splitRow=row=> row.match(/(?:,|\n|^)(?:"([^"]*(?:""[^"]*)*)"|([^",\n]*))/g)
+    ?.map(s=>s.replace(/^,/,''))
+    ?.map(s=>s.replace(/^"|"$/g,'').replace(/""/g,'"')) || [];
+  const headers=splitRow(lines[0]).map(h=>h.trim());
+  const rows=lines.slice(1).map(line=>splitRow(line));
+  return {headers,rows};
+}
+
+/* Load CSV */
+fetch(csvUrl,{cache:'no-store'})
+  .then(res=>{ if(!res.ok) throw new Error("HTTP "+res.status); return res.text(); })
+  .then(text=>{
+    const {headers,rows}=parseCSV(text);
+    products=rows.map(r=>{ const o={}; headers.forEach((h,i)=>o[h]=(r[i]??'').trim()); return o; });
+    csvLoaded=true;
+    if(showBtn){ showBtn.disabled=false; showBtn.textContent='Show Results'; }
+    if(promoBtn){ promoBtn.disabled=false; promoBtn.textContent='Show Promo Only'; }
+    if(btnText){ btnText.textContent=''; }
+  })
+  .catch(err=>{
+    console.error("CSV Load Error:",err);
+    if(showBtn){ showBtn.disabled=true; showBtn.textContent='Load failed'; }
+    if(btnText){ btnText.textContent='Please refresh to retry.'; }
+  });
+
+/* Gather filters */
+function getSelections(){
+  const selected={q1:[],q2:[],q3:[],q4:[],q5:[],q6:[]};
+  document.querySelectorAll('input[type="checkbox"]:checked').forEach(c=>{
+    if(selected[c.name]) selected[c.name].push(c.value.toUpperCase());
+  });
+  return selected;
+}
+
+/* Filter core */
+function filterProducts(selected,query){
+  const q1Col="LENS TYPE (CLEAR, COLOUR)";
+  const mCol ="MODALITY (1 Day, 2 Weeks, 1 Month, 3 Months)";
+  const vCol ="VISION (SPH, ASTIG, MF)";
+  const COMFORT_COL="COMFORT";
+  const MATERIAL_COL="MATERIAL";
+
+  const terms=(query||'').toLowerCase().split(/\s+/).filter(Boolean);
+
+  return products.filter(p=>{
+    const lensType=(p[q1Col]||'').toUpperCase();
+    const modality=(p[mCol]||'').toUpperCase();
+    const vision  =(p[vCol]||'').toUpperCase();
+    const comfort =(p[COMFORT_COL]||'').toUpperCase();
+    const material=(p[MATERIAL_COL]||'').toUpperCase();
+
+    if(selected.q1.length && !selected.q1.includes(lensType)) return false;
+    if(selected.q2.length && !selected.q2.includes(modality)) return false;
+    if(selected.q3.length && !selected.q3.includes(vision))   return false;
+    if(selected.q4.length && !selected.q4.includes(comfort))  return false;
+    if(selected.q5.length && !selected.q5.includes(material)) return false;
+
+    // Q6: Loose vs Not Loose — detect by FULL NAME containing "loose"
+    const fullName=p["FULL NAME"]||"";
+    const isLoose=/\bloose\b/i.test(fullName);
+    if(selected.q6.length){
+      const wantsLoose    = selected.q6.includes("LOOSE");
+      const wantsNotLoose = selected.q6.includes("NOT_LOOSE");
+      if(wantsLoose!==wantsNotLoose){
+        if(wantsLoose && !isLoose) return false;
+        if(wantsNotLoose && isLoose) return false;
+      }
+    }
+
+    // Fuzzy search
+    if(terms.length){
+      const rowText=Object.values(p).join(" ").toLowerCase();
+      if(!terms.every(t=>rowText.includes(t))) return false;
+    }
+    return true;
+  });
+}
+
+/* Helpers */
+function getNumericPrice(p){
+  const text=(p["1 BOX PRICE & UNIT"]||"").replace(/,/g,"");
+  const m=text.match(/(\d+(\.\d+)?)/);
+  return m?parseFloat(m[1]):Number.POSITIVE_INFINITY;
+}
+function getNumericValuePerPair(p){
+  const text=(p["VALUE_PER_PAIR"]||"").toString().replace(/,/g,"").trim();
+  if(!text) return Number.POSITIVE_INFINITY;
+  const m=text.match(/(\d+(\.\d+)?)/);
+  return m?parseFloat(m[1]):Number.POSITIVE_INFINITY;
+}
+function getWearingHours(p){
+  const v=parseFloat(String(p["WEARING_HOURS"]||"").replace(/[^\d.]/g,""));
+  return Number.isFinite(v)?v:null;
+}
+function niceCase(s=""){ return String(s).toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()); }
+function mapMaterial(s=""){
+  const u=s.toUpperCase().trim();
+  if(u==="HYDROGEL") return "Hydrogel (Standard Oxygen)";
+  if(u==="SILICONE HYDROGEL") return "Silicone Hydrogel (High Oxygen)";
+  return niceCase(s);
+}
+function mapComfortRank(s=""){
+  const u=(s||"").toUpperCase().trim();
+  if(u==="PREMIUM") return 3;
+  if(u==="GOOD")    return 2;
+  if(u==="BASIC")   return 1;
+  return 0;
+}
+
+</script>
+
+
+
+<script>
+// =========================
+// ETA helpers (MY/KL rules) + Loose start Tue/Thu
+// =========================
+
+// Selangor + Kuala Lumpur Public Holidays (2025–2026, with Sunday replacements)
+const PUBLIC_HOLIDAYS = new Set([
+  // === 2025 ===
+  "2025-01-01", // New Year's Day
+  "2025-01-29", // Chinese New Year (Day 1)
+  "2025-01-30", // Chinese New Year (Day 2)
+  "2025-02-01", // Federal Territory Day (KL)
+  "2025-02-03", // Federal Territory Day Holiday (in-lieu)
+  "2025-02-11", // Thaipusam
+  "2025-03-18", // Nuzul Al-Quran
+  "2025-03-31", // Hari Raya Aidilfitri (Day 1)
+  "2025-04-01", // Hari Raya Aidilfitri (Day 2)
+  "2025-05-01", // Labour Day
+  "2025-05-12", // Wesak Day
+  "2025-06-02", // Agong's (King's) Birthday
+  "2025-06-07", // Hari Raya Haji
+  "2025-06-27", // Awal Muharram
+  "2025-08-31", // Merdeka Day (Sunday)
+  "2025-09-01", // Merdeka Day Holiday (in-lieu Monday)
+  "2025-09-05", // Maulidur Rasul
+  "2025-09-15", // Malaysia Day Holiday (per listings)
+  "2025-09-16", // Malaysia Day
+  "2025-10-20", // Deepavali
+  "2025-12-11", // Sultan of Selangor's Birthday
+  "2025-12-25", // Christmas
+
+  // === 2026 ===
+  "2026-01-01", // New Year's Day
+  "2026-02-01", // Thaipusam (Sunday)
+  "2026-02-02", // Thaipusam Holiday (in-lieu Monday)
+  "2026-02-17", // Chinese New Year (Day 1)
+  "2026-02-18", // Chinese New Year (Day 2)
+  "2026-03-07", // Nuzul Al-Quran (Saturday, no replacement)
+  "2026-03-21", // Hari Raya Aidilfitri (Day 1, Saturday)
+  "2026-03-22", // Hari Raya Aidilfitri (Day 2, Sunday)
+  "2026-03-23", // Hari Raya Aidilfitri Holiday (in-lieu Monday)
+  "2026-05-01", // Labour Day (Friday)
+  "2026-05-27", // Hari Raya Haji
+  "2026-05-31", // Wesak Day (Sunday)
+  "2026-06-01", // Wesak Day Holiday (in-lieu Monday)
+  "2026-06-01", // Agong's (King's) Birthday (same day as in-lieu)
+  "2026-06-17", // Awal Muharram
+  "2026-08-25", // Maulidur Rasul
+  "2026-08-31", // Merdeka Day (Monday)
+  "2026-09-16", // Malaysia Day (Wednesday)
+  "2026-11-08", // Deepavali (Sunday)
+  "2026-11-09", // Deepavali Holiday (in-lieu Monday)
+  "2026-12-11", // Sultan of Selangor's Birthday (Friday)
+  "2026-12-25", // Christmas (Friday)
+]);
+
+
+function toYMD(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const da= String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${da}`;
+}
+function addDays(d, n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function lastDayOfMonth(d){ return new Date(d.getFullYear(), d.getMonth()+1, 0).getDate(); }
+
+function isWeekend(d){ const w=d.getDay(); return w===0 || w===6; } // Sun=0, Sat=6
+function isHoliday(d){ return PUBLIC_HOLIDAYS.has(toYMD(d)); }
+function isCutoff(d){
+  const last = lastDayOfMonth(d);         // 28/29/30/31
+  const start = last - 6;                 // last 7 days inclusive
+  return d.getDate() >= start;
+}
+function isWorkingDay(d){
+  return !(isWeekend(d) || isHoliday(d) || isCutoff(d));
+}
+
+function nextTueThu(fromDate){
+  // Tue=2, Thu=4
+  let d = new Date(fromDate);
+  while (d.getDay() !== 2 && d.getDay() !== 4) {
+    d = addDays(d, 1);
+  }
+  return d;
+}
+
+function formatETA(d){
+  return new Intl.DateTimeFormat('en-MY', {
+    weekday:'short', day:'numeric', month:'short', year:'numeric'
+  }).format(d);
+}
+
+function withFlags(base, cutFlag, holFlag){
+  let s = base;
+  if (cutFlag) s += ' *affected by cut off*';
+  if (holFlag) s += ' *affected by holiday*';
+  return s;
+}
+
+/**
+ * computeETA(leadDays, { looseStart: boolean })
+ * - Standard: start counting from tomorrow.
+ * - Loose: start counting from the nearest coming Tue/Thu (>= tomorrow).
+ * - Count only working days (weekend/cutoff/holiday skipped).
+ * - Flags if we SKIP due to cutoff or holiday (weekends never flagged).
+ * - leadDays=0:
+ *      - standard: today if working else next working (flags if skip due to cutoff/holiday)
+ *      - loose: the coming Tue/Thu if working else next working day after it (flags if skip due to cutoff/holiday)
+ */
+function computeETA(leadDays, opts={}){
+  let cutFlag=false, holFlag=false;
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const loose = !!opts.looseStart;
+
+  // Decide base start date
+  let base;
+  if (loose) {
+    base = nextTueThu(addDays(today, 1));         // the nearest Tue/Thu from tomorrow
+  } else {
+    base = addDays(today, 1);                     // tomorrow
+  }
+
+  // Special: leadDays = 0
+  if (Number(leadDays) === 0){
+    if (!loose){
+      if (isWorkingDay(today)) {
+        return { date: today, text: formatETA(today), cutFlag:false, holFlag:false };
+      }
+      let d = addDays(today, 1);
+      while (!isWorkingDay(d)) {
+        if (isCutoff(d)) cutFlag = true;
+        if (isHoliday(d)) holFlag = true;
+        d = addDays(d, 1);
+      }
+      return { date:d, text: withFlags(formatETA(d), cutFlag, holFlag), cutFlag, holFlag };
+    } else {
+      // loose + 0 days => that Tue/Thu if working, otherwise next working day
+      let d = new Date(base);
+      if (!isWorkingDay(d)){
+        do {
+          if (isCutoff(d)) cutFlag = true;
+          if (isHoliday(d)) holFlag = true;
+          d = addDays(d, 1);
+        } while(!isWorkingDay(d));
+      }
+      return { date:d, text: withFlags(formatETA(d), cutFlag, holFlag), cutFlag, holFlag };
+    }
+  }
+
+  // leadDays >= 1 : count working days from base
+  let d = new Date(base);
+  let needed = Math.max(0, parseInt(leadDays,10) || 0);
+
+  while (needed > 0){
+    if (isWorkingDay(d)){
+      needed -= 1;                 // this working day counts
+      if (needed === 0) break;     // d is ETA
+      d = addDays(d, 1);
+    } else {
+      if (isCutoff(d)) cutFlag = true;
+      if (isHoliday(d)) holFlag = true;
+      d = addDays(d, 1);           // skip non-working
+    }
+  }
+
+  return { date:d, text: withFlags(formatETA(d), cutFlag, holFlag), cutFlag, holFlag };
+}
+</script>
+
+
+
+
+
+<script>
+/* Show Results pipeline */
+let promoOnlyMode=false;
+
+function showResults() {
+  if (!csvLoaded) return;
+  const selected = getSelections();
+
+  const reInput = (document.getElementById("searchRE")?.value || "").trim().toLowerCase();
+  const leInput = (document.getElementById("searchLE")?.value || "").trim().toLowerCase();
+
+  const reHasAstig = /c-?(0\.[1-9]|[1-9])/i.test(reInput);
+  const leHasAstig = /c-?(0\.[1-9]|[1-9])/i.test(leInput);
+
+  // Detect which side has astig
+  let toricInput = "", sphereInput = "";
+  if (reHasAstig && !leHasAstig) {
+    toricInput = reInput;
+    sphereInput = leInput;
+  } else if (leHasAstig && !reHasAstig) {
+    toricInput = leInput;
+    sphereInput = reInput;
+  } else {
+    // both or neither → fallback to current overlap logic
+    const reFiltered = filterProducts(selected, reInput);
+    const leFiltered = filterProducts(selected, leInput || reInput);
+    const setLE = new Set(leFiltered.map(p => p["FULL NAME"]));
+    let overlapping = reFiltered.filter(p => setLE.has(p["FULL NAME"]));
+    if (promoOnlyMode) overlapping = overlapping.filter(p => (p["PROMO"] || "").trim().length > 0);
+    return renderCards(overlapping);
+  }
+
+  // --- STEP 1: find ASTIG products for the C side
+  const toricFiltered = filterProducts(selected, toricInput).filter(p =>
+    (p["VISION (SPH, ASTIG, MF)"] || "").toUpperCase().includes("ASTIG")
+  );
+
+  if (!toricFiltered.length) {
+    renderCards([]);
+    return;
+  }
+
+  // --- STEP 2: find all matching PRODUCT names
+  const productNames = new Set(toricFiltered.map(p => (p["PRODUCT"] || "").toUpperCase()));
+
+  // --- STEP 3: find spherical versions with same PRODUCT
+  const sphereFiltered = products.filter(p =>
+    productNames.has((p["PRODUCT"] || "").toUpperCase()) &&
+    (p["VISION (SPH, ASTIG, MF)"] || "").toUpperCase().includes("SPH")
+  );
+
+  // --- STEP 4: combine toric first, then spherical
+  let combined = [...toricFiltered, ...sphereFiltered];
+
+  // --- STEP 5: promo-only filter
+  if (promoOnlyMode) {
+    combined = combined.filter(p => (p["PROMO"] || "").trim().length > 0);
+  }
+
+// --- STEP 6: group so pairs appear together
+combined.sort((a, b) => {
+  const prodA = (a["PRODUCT"] || "").toUpperCase();
+  const prodB = (b["PRODUCT"] || "").toUpperCase();
+  if (prodA !== prodB) return prodA.localeCompare(prodB); // group by product
+
+  const order = { ASTIG: 1, SPH: 2, MF: 3 };
+  const vA = order[(a["VISION (SPH, ASTIG, MF)"] || "").toUpperCase()] || 99;
+  const vB = order[(b["VISION (SPH, ASTIG, MF)"] || "").toUpperCase()] || 99;
+  return vA - vB; // toric first, then SPH, then MF
+});
+
+
+  renderCards(combined);
+}
+
+
+
+
+
+
+
+
+
+/* Enter to search */
+["searchRE","searchLE"].forEach(id=>{
+  const el=document.getElementById(id);
+  el && el.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){ e.preventDefault(); showResults(); }
+  });
+});
+
+/* Buttons */
+showBtn?.addEventListener("click",()=>{ promoOnlyMode=false; showResults(); });
+promoBtn?.addEventListener("click",()=>{ promoOnlyMode=true; showResults(); });
+
+/* Sorting */
+sortSelect?.addEventListener("change",()=>{
+  const items=[...(window._lastResults||[])];
+  const val=sortSelect.value;
+
+  if(val.startsWith("price")){
+    const dir=val.endsWith("asc")?1:-1;
+    items.sort((a,b)=>(getNumericPrice(a)-getNumericPrice(b))*dir);
+  }else if(val.startsWith("valuepair")){
+    const dir=val.endsWith("asc")?1:-1;
+    items.sort((a,b)=>(getNumericValuePerPair(a)-getNumericValuePerPair(b))*dir);
+  }else if(val==="comfort-desc"){
+    items.sort((a,b)=>mapComfortRank(b["COMFORT"])-mapComfortRank(a["COMFORT"]));
+  }else if(val==="comfort-asc"){
+    items.sort((a,b)=>mapComfortRank(a["COMFORT"])-mapComfortRank(b["COMFORT"]));
+  }else if(val==="hours-desc"){
+    items.sort((a,b)=>(getWearingHours(b) ?? -Infinity) - (getWearingHours(a) ?? -Infinity));
+  }else if(val==="hours-asc"){
+    items.sort((a,b)=>(getWearingHours(a) ??  Infinity) - (getWearingHours(b) ??  Infinity));
+  }
+  buildCards(items);
+});
+
+/* Render Cards */
+function renderCards(data){
+  const container=document.getElementById("cardsGrid");
+  const bar=document.getElementById("sortBar");
+  if(!container) return;
+
+  if(!data||!data.length){
+    container.innerHTML="<p>No matching products found.</p>";
+    bar.style.display="none";
+    return;
+  }
+  bar.style.display="flex";
+
+  // De-duplicate by FULL NAME
+  const seen=new Set();
+  const clean=data.filter(p=>{
+    const key=p["FULL NAME"]||"";
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  window._lastResults=clean;
+  buildCards(clean);
+}
+
+function buildCards(list){
+  const grid=document.getElementById("cardsGrid");
+  if(!grid) return;
+
+  const H_DISPOSE="MODALITY (1 day, 2 weeks, 1 month, 3 months)";
+  const H_PRICE ="1 BOX PRICE & UNIT";
+  const H_VALUE ="VALUE_PER_PAIR";
+  const H_PROMO ="PROMO";
+  const H_COMFORT="COMFORT";
+  const H_MAT   ="MATERIAL";
+  const H_HOURS ="WEARING_HOURS";
+
+  const html=list.map((p,idx)=>{
+    const id="card_"+idx;
+    const name=p["FULL NAME"]||"";
+    const promo=(p[H_PROMO]||"").trim();
+    const hasPromo=promo.length>0;
+
+
+
+    const photoKey=(p["PHOTO"]||"").trim();
+    const hasPhoto=!!photoKey;
+    const photoURL=hasPhoto?`https://raw.githubusercontent.com/kiaraoptometrypx/CL-SELECTOR/main/CL-PHOTOS/${photoKey}.png`:"";
+
+    const price=p[H_PRICE]||"";
+    const value=p[H_VALUE]||"";
+    const hoursRaw=p[H_HOURS]||"";
+    const hours=hoursRaw?`${parseFloat(hoursRaw)} hrs`:"";
+
+const nameForLoose = p["FULL NAME"] || "";
+const isLoose = /\bloose\b/i.test(nameForLoose);            // detect loose lens
+const leadDays = parseInt(p["LEAD_TIME"] || "3", 10);
+const etaText  = computeETA(leadDays, { looseStart: isLoose }).text;
+
+
+    return `
+      <div id="${id}" class="pane lens-card card-compact" style="position:relative;">
+        <div style="font-weight:700; margin-bottom:6px;">${name}</div>
+        <div class="photo" style="margin-bottom:6px;">
+          ${ hasPhoto
+              ? `<img src="${photoURL}" alt="${name}" onerror="this.style.display='none'">`
+              : `<div style="width:180px;height:120px;display:flex;align-items:center;justify-content:center;color:#666;border:1px dashed #ccc;border-radius:10px;">No photo</div>`
+          }
+${hasPromo?`<div class="promo-badge">🔥 ${promo}</div>`:""}
+        </div>
+        <div><b>Price :</b> ${price}</div>
+        <div><b>Value Per Piece :</b> ${value || "-"}</div>
+        <div><b>Estimated Comfy Hours :</b> ${hours || "-"}</div>
+<div><b>Estimated Ready :</b> ${etaText} <br><i>* May take more than a month if no stock</i></div>
+
+      </div>`;
+  }).join("");
+
+  grid.innerHTML=html;
+  bindDefToggles(grid); // safe even if no .def-term in cards
+
+  // Click card => open LIGHTBOX
+  list.forEach((p,idx)=>{
+    const id="card_"+idx;
+    const el=document.getElementById(id);
+    if(!el) return;
+
+    el.addEventListener('click',()=>{
+      const name     = p["FULL NAME"] || "";
+      const photoKey = (p["PHOTO"] || "").trim();
+      const hasPhoto = !!photoKey;
+      const photoURL = hasPhoto
+        ? `https://raw.githubusercontent.com/kiaraoptometrypx/CL-SELECTOR/main/CL-PHOTOS/${photoKey}.png`
+        : "";
+
+      const dispose  = p[H_DISPOSE] || "";
+      const price    = p[H_PRICE]   || "";
+      const value    = p[H_VALUE]   || "";
+      const comfort  = p[H_COMFORT] || "";
+      const material = p[H_MAT]     || "";
+      const promo    = (p[H_PROMO]  || "").trim();
+      const hasPromo = promo.length > 0;
+      const hoursRaw = p[H_HOURS]   || "";
+      const hours    = hoursRaw ? `${parseFloat(hoursRaw)} hrs` : "";
+
+      const comfortNice  = niceCase(comfort);
+      const materialNice = mapMaterial(material);
+
+const nameForLoose = name || "";
+const isLoose = /\bloose\b/i.test(nameForLoose);
+const leadDays = parseInt(p["LEAD_TIME"] || "3", 10);
+const etaText  = computeETA(leadDays, { looseStart: isLoose }).text;
+
+
+
+      const expandedHTML = `
+        <div class="zoom-card-flex">
+          <div class="photo" style="text-align:center;">
+            ${
+              hasPhoto
+                ? `<img src="${photoURL}" alt="${name}">`
+                : `<div style="width:500px;max-width:100%;height:333px;display:flex;align-items:center;justify-content:center;color:#666;border:1px dashed #ccc;border-radius:10px;margin:0 auto;">No photo</div>`
+            }
+          </div>
+          <div class="details">
+            <div style="font-weight:700; margin-bottom:4px;">${name}</div>
+            <div><b>Dispose Period:</b> ${dispose}</div>
+<div><b>Estimated Ready:</b> ${etaText} <br><i>* May take more than a month if no stock</i></div>
+
+
+            <!-- SHORT label + inline value always visible -->
+            <div class="def-row">
+              <b class="def-term"
+                 data-long="Premium : Enhanced coating & comfort thru newer and premium technology.<br> Good : Medium range that balances between cost and technology.<br> Basic : Basic quality that focuses on health and safety only.">
+                 Comfort
+              </b>: <span class="def-value">${comfortNice}</span>
+              <div class="def-extra"></div>
+            </div>
+
+            <div class="def-row">
+              <b class="def-term"
+                 data-long="Hydrogel : First generation material. Still popular among short hours wearer.<br> Silicone Hydrogel : Modern material that embeds silicone for much higher oxygen transmissibility. Better for long daily wear.">
+                 Material
+              </b>: <span class="def-value">${materialNice}</span>
+              <div class="def-extra"></div>
+            </div>
+
+            <div><b>Estimated wearing hours:</b> ${hours || "-"}</div>
+            <div><b>Average cost per pair:</b> ${value || "-"}</div>
+            <div style="height:10px"></div>
+            <div><b>Price Per Pack & Qty:</b> ${price}</div>
+            <div><b>Current Promo:</b> ${hasPromo ? promo : "Not at the moment"}</div>
+          </div>
+        </div>
+      `;
+
+      if(window.__openCardZoom){
+        window.__openCardZoom(expandedHTML);
+        // Bind short/long toggles inside the lightbox (specific!)
+        bindDefToggles(document.getElementById('zoomCardBox'));
+      }
+    });
+  });
+}
+</script>
+
+<script>
+/* =========================
+   Lightbox: CARD MODE
+========================= */
+document.addEventListener('DOMContentLoaded',function(){
+  const overlay=document.getElementById('imgZoom');
+  const cardBox=document.getElementById('zoomCardBox');
+  if(!overlay||!cardBox) return;
+
+  function openCard(html){
+    cardBox.innerHTML=html;
+    cardBox.style.display='block';
+    overlay.classList.add('open');
+  }
+  function closeAll(){
+    overlay.classList.remove('open');
+    cardBox.innerHTML='';
+    cardBox.style.display='none';
+  }
+
+  overlay.addEventListener('click',(e)=>{ if(e.target===overlay) closeAll(); });
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'&&overlay.classList.contains('open')) closeAll(); });
+
+  window.__openCardZoom=openCard;
+  window.__closeZoom=closeAll;
+});
+</script>
+
+
+
+
+
+<script>
+/* =========================
+   Converter (unchanged core)
+========================= */
+(function(){
+  const CL_CYL_STEPS=[-0.75,-1.25,-1.75,-2.25,-2.75];
+  let latest={re:null,le:null};
+
+  function glassesToCL(F){ const d=0.01; return F/(1 - d*F); }
+  function r025(x){ return Math.round(x/0.25)*0.25; }
+function roundUp025(x){
+  return Math.ceil(x / 0.25) * 0.25;
+}
+
+  function fmt(x){ x=parseFloat(x)||0; const v=Math.round(x*100)/100; const s=v>=0?"+":""; return s+v.toFixed(2); }
+  function nearest(arr,val){ return arr.reduce((b,v)=>Math.abs(v-val)<Math.abs(b-val)?v:b,arr[0]); }
+  function roundDown025(x){ return Math.floor(x/0.25)*0.25; }
+
+  document.querySelectorAll("#specToCL input[type=number]").forEach(inp=>{
+    inp.addEventListener("blur",()=>{
+      let v=parseFloat(inp.value);
+      if(isNaN(v)){inp.value="";return;}
+      if(inp.id.includes("axis")){
+        v=Math.round(v); if(v<=0)v=180; if(v>180)v=v%180||180;
+        inp.value=v;
+      }else{
+        v=r025(v);
+        inp.value=(v>0?"+":"")+v.toFixed(2);
+      }
+    });
+  });
+
+function flatterAxis(a){
+  // Ensure valid number 0–180
+  a = parseFloat(a) || 0;
+  if (a <= 0) a = 180;
+
+  // Round to nearest 10 degrees (standard clinical rule)
+  const rounded = Math.round(a / 10) * 10;
+
+  // Keep within 1–180
+  const fixed = (rounded > 180) ? 180 : rounded;
+
+  // Generate a small ±10° range around the rounded axis
+  let t1 = fixed - 10;
+  let t2 = fixed + 10;
+  if (t1 < 1) t1 = 180 + t1; // wrap around
+  if (t2 > 180) t2 = t2 - 180;
+
+  return [fixed, t1, t2];
+}
+
+
+// NEW rounding rule
+function roundClipDiff(x){
+  return Math.round(x/0.50)*0.50;
+}
+
+function convertOne(S, C, A) {
+  S = parseFloat(S) || 0;
+  C = parseFloat(C) || 0;
+  A = parseFloat(A) || 0;
+
+  const total = S + C;
+  const convS = glassesToCL(S);
+  const convT = glassesToCL(total);
+  const rawCyl = convT - convS;
+  const SE = convS + rawCyl / 2;
+
+  const rS = r025(convS);
+  const rClipC = nearest(CL_CYL_STEPS, rawCyl);
+  const [axis1, axis2] = flatterAxis(A);
+
+  // NEW logic
+  const clipDiffRounded = roundClipDiff(rawCyl - rClipC);
+  const correctedSphere = roundUp025(rS + clipDiffRounded / 2);
+
+  if (Math.abs(rawCyl) < 0.75) {
+    return {
+      type: "sph",
+      sph: roundUp025(SE),
+      cyl: 0,
+      axis: null
+    };
+  }
+
+  return {
+    type: "toric",
+
+    t1: { S: correctedSphere, C: rClipC, A: axis1 },
+    t2: { S: correctedSphere, C: rClipC, A: axis2 },
+
+t3: {
+  S: correctedSphere - 0.25,
+  C: rClipC + 0.50,   // add +0.50 = more plus
+  A: axis1
+},
+
+
+
+    SE: roundUp025(SE)
+  };
+}
+
+
+  function display(side,data){
+    const div=document.getElementById(side==="re"?"reResult":"leResult");
+    if(!div)return;
+
+    if(data.type==="sph"){
+      div.innerHTML=`${side.toUpperCase()} Spherical : S${fmt(data.sph)}`;
+      return;
+    }else{
+      const t=(t,n)=>`${side.toUpperCase()} Toric ${n} : S${fmt(t.S)} C${fmt(t.C)} ×${t.A}`;
+      const se=`${side.toUpperCase()} Spherical : S${fmt(data.SE)}`;
+      div.innerHTML=[t(data.t1,1),t(data.t2,2),t(data.t3,3),se].join("<br>");
+    }
+  }
+
+  document.getElementById("convertBtn").addEventListener("click",()=>{
+    const re=convertOne(
+      document.getElementById("sph-re").value,
+      document.getElementById("cyl-re").value,
+      document.getElementById("axis-re").value
+    );
+    const le=convertOne(
+      document.getElementById("sph-le").value,
+      document.getElementById("cyl-le").value,
+      document.getElementById("axis-le").value
+    );
+    display("re",re); display("le",le);
+    latest.re=re; latest.le=le;
+  });
+
+  function autofillSet(set){
+    const reBox=document.getElementById("searchRE");
+    const leBox=document.getElementById("searchLE");
+    if(!reBox||!leBox)return;
+    const f=(d)=>{
+      if(!d)return"";
+      if(d.type==="sph") return `S${fmt(d.sph)} C-0.00`;
+      const sel=d[set];
+      if(!sel) return `S${fmt(d.SE)}`;
+      return `S${fmt(sel.S)} C${fmt(sel.C)} x${sel.A}`;
+    };
+    reBox.value=f(latest.re);
+    leBox.value=f(latest.le);
+  }
+
+  document.getElementById("auto1").addEventListener("click",()=>autofillSet("t1"));
+  document.getElementById("auto2").addEventListener("click",()=>autofillSet("t2"));
+  document.getElementById("auto3").addEventListener("click",()=>autofillSet("t3"));
+  document.getElementById("autoSE").addEventListener("click",()=>autofillSet("SE"));
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+/* =========================
+   Pro Mode (hide in Simple): #specToCL, #q4, #q5
+========================= */
+(function(){
+  let isProfessional=false;
+  const btn=document.getElementById('modeToggleBtn');
+  const proSelectors=['#specToCL','#q4','#q5'];
+
+  function setMode(){
+    proSelectors.forEach(sel=>{
+      const el=document.querySelector(sel);
+      if(!el) return;
+      if(isProfessional) el.classList.remove('simple-hide');
+      else el.classList.add('simple-hide');
+    });
+    btn.textContent=isProfessional?'Switch to Simple Mode':'Switch to Professional Mode';
+  }
+
+  btn.addEventListener('click',()=>{ isProfessional=!isProfessional; setMode(); });
+  setMode(); // start simple
+})();
+</script>
+
+<!-- 🔍 Lightbox root (card mode) -->
+<div id="imgZoom" aria-modal="true" role="dialog">
+  <div class="inner">
+    <div id="zoomCardBox"></div>
+    <div class="hint">Tap outside or press Esc to close</div>
+  </div>
+</div>
+
+
+
+
+<script>
+/* =========================
+   Photo Zoom inside Lightbox
+========================= */
+document.addEventListener('click', function (e) {
+  // Only act when clicking a photo INSIDE zoomCardBox
+  const cardBox = document.getElementById('zoomCardBox');
+  if (!cardBox.contains(e.target)) return;
+
+  const img = e.target.closest('img');
+  if (!img) return;
+
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'photoZoomOverlay';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,0.9)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '10001';
+  overlay.style.cursor = 'zoom-out';
+
+  // Clone and enlarge image
+  const big = img.cloneNode(true);
+  big.style.maxWidth = '80vw';
+  big.style.maxHeight = '85vh';
+  big.style.borderRadius = '12px';
+  big.style.boxShadow = '0 0 25px rgba(0,0,0,0.6)';
+  big.style.border = '2px solid #fff';
+  overlay.appendChild(big);
+
+  // Close when clicking anywhere outside image
+  overlay.addEventListener('click', function (ev) {
+    if (ev.target === overlay) overlay.remove();
+  });
+
+  document.body.appendChild(overlay);
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+/* =========================
+   Lens Comparison (Compare button only)
+========================= */
+let selectedCards = []; // store selected products
+
+function toggleCompare(cardEl, product, btn) {
+  const id = product["FULL NAME"] || "";
+  const isSelected = selectedCards.find(p => p["FULL NAME"] === id);
+
+  if (isSelected) {
+    // deselect
+    selectedCards = selectedCards.filter(p => p["FULL NAME"] !== id);
+    cardEl.style.outline = "";
+    btn.textContent = "Compare";
+  } else {
+    if (selectedCards.length >= 2) return; // block 3rd
+    selectedCards.push(product);
+    cardEl.style.outline = "3px solid #0b3d2e";
+    btn.textContent = "Remove";
+  }
+  updateCompareView();
+}
+
+function updateCompareView() {
+  const compBox = document.getElementById("compareBox") || createCompareBox();
+  if (selectedCards.length !== 2) {
+    compBox.style.display = "none";
+    return;
+  }
+
+  const [a, b] = selectedCards;
+  const priceA = a["1 BOX PRICE & UNIT"] || "-";
+  const priceB = b["1 BOX PRICE & UNIT"] || "-";
+  const hrsA = a["WEARING_HOURS"] ? `${parseFloat(a["WEARING_HOURS"])} hrs` : "-";
+  const hrsB = b["WEARING_HOURS"] ? `${parseFloat(b["WEARING_HOURS"])} hrs` : "-";
+  const typeA = a["VISION (SPH, ASTIG, MF)"] || "-";
+  const typeB = b["VISION (SPH, ASTIG, MF)"] || "-";
+
+  const isLooseA = /\bloose\b/i.test(a["FULL NAME"] || "");
+  const isLooseB = /\bloose\b/i.test(b["FULL NAME"] || "");
+  const leadA = parseInt(a["LEAD_TIME"] || "3", 10);
+  const leadB = parseInt(b["LEAD_TIME"] || "3", 10);
+  const etaA = computeETA(leadA, { looseStart: isLooseA }).text;
+  const etaB = computeETA(leadB, { looseStart: isLooseB }).text;
+
+  compBox.innerHTML = `
+    <h3 style="margin:0 0 8px;text-align:center;">Comparison</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <tr><th style="text-align:left;">Field</th><th>${a["FULL NAME"]}</th><th>${b["FULL NAME"]}</th></tr>
+      <tr><td><b>Price</b></td><td>${priceA}</td><td>${priceB}</td></tr>
+      <tr><td><b>Estimated Comfy Hours</b></td><td>${hrsA}</td><td>${hrsB}</td></tr>
+      <tr><td><b>Estimated Ready</b></td><td>${etaA}</td><td>${etaB}</td></tr>
+      <tr><td><b>Type</b></td><td>${typeA}</td><td>${typeB}</td></tr>
+    </table>
+    <p style="font-size:11px;text-align:center;margin-top:8px;opacity:.7;">
+      Click <b>Remove</b> on either lens to clear comparison.
+    </p>
+  `;
+  compBox.style.display = "block";
+}
+
+function createCompareBox() {
+  const box = document.createElement("div");
+  box.id = "compareBox";
+  box.style.background = "#fff";
+  box.style.border = "1px solid #ccc";
+  box.style.borderRadius = "10px";
+  box.style.boxShadow = "0 2px 8px rgba(0,0,0,0.15)";
+  box.style.padding = "12px";
+  box.style.margin = "20px 0";
+document.getElementById("compareArea").appendChild(box);
+  return box;
+}
+
+/* Hook Compare button into cards */
+const oldBuildCards = buildCards;
+buildCards = function(list){
+  oldBuildCards(list);
+
+  list.forEach((p, idx)=>{
+    const card = document.getElementById("card_"+idx);
+    if(!card) return;
+
+    // Add Compare button
+    const btn = document.createElement("button");
+    btn.textContent = "Compare";
+    btn.style.marginTop = "6px";
+    btn.style.fontSize = "11px";
+    btn.addEventListener("click", (e)=>{
+      e.stopPropagation(); // prevent zoom
+      toggleCompare(card, p, btn);
+    });
+    card.appendChild(btn);
+  });
+};
+</script>
+
+
+
+
+
+<script>
+  document.getElementById('resetBtn')?.addEventListener('click', () => {
+    location.reload(); // hard refresh behavior is fine here
+  });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+
+
+
+
+
+</html>
+
+
+
+
+
+
+
