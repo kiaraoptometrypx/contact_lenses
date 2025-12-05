@@ -6,19 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1=" />
 <style>
 
-  /* Fixed design width */
-  #fixedWrapper {
-    width: 1200px;
-    transform-origin: top center;
-    margin: 0 auto;
-  }
-
-  /* Auto-scale based on device width */
-  @media screen and (max-width: 1200px) {
-    #fixedWrapper {
-      transform: scale(calc(100vw / 1200));
-    }
-  }
 
 
 
@@ -37,7 +24,7 @@ h2{font-size:15px;margin:6px 0 8px}
 
 
 /* ========= Layout ========= */
-.container{max-width:1100px;margin:0 auto;padding:40px}
+.container{max-width:1100px; width:90%; margin:0 auto}
 .wrap{width:100%;min-width:300px}
 
 /* ========= Sections ========= */
@@ -237,17 +224,17 @@ input[type="checkbox"]:focus{outline:2px solid #0b3d2e33;outline-offset:2px}
       <h2>Spectacle → Contact Lens Power Converter</h2>
 <div style="display:flex; flex-direction:column; gap:10px;">
 
-<!-- RE Specs -->
-<div><b>RE Specs :</b></div>
-<div>Sph <br><input id="sph-re" type="number" step="0.25" style="width:50%; text-align:center"></div>
-<div>Cyl <br><input id="cyl-re" type="number" step="0.25" style="width:50%; text-align:center"></div>
-<div>Axis <br><input id="axis-re" type="number" min="0" max="180" step="1" style="width:50%; text-align:center"></div>
+<div class="section">
+<div>Right Sphere <br><input id="sph-re" type="number" step="0.25" style="width:100%; text-align:center"></div>
+<div>Right Cylinder <br><input id="cyl-re" type="number" step="0.25" style="width:100%; text-align:center"></div>
+<div>Right Axis <br><input id="axis-re" type="number" min="0" max="180" step="1" style="width:100%; text-align:center"></div>
+</div>
 
-<!-- LE Specs -->
-<div><b>LE Specs :</b></div>
-<div>Sph <br><input id="sph-le" type="number" step="0.25" style="width:50%; text-align:center"></div>
-<div>Cyl <br><input id="cyl-le" type="number" step="0.25" style="width:50%; text-align:center"></div>
-<div>Axis <br><input id="axis-le" type="number" min="0" max="180" step="1" style="width:50%; text-align:center"></div>
+<div class="section">
+<div>Left Sphere <br><input id="sph-le" type="number" step="0.25" style="width:100%; text-align:center"></div>
+<div>Left Cylinder <br><input id="cyl-le" type="number" step="0.25" style="width:100%; text-align:center"></div>
+<div>Left Axis <br><input id="axis-le" type="number" min="0" max="180" step="1" style="width:100%; text-align:center"></div>
+</div>
 
 
   <button id="convertBtn">Convert</button>
@@ -276,8 +263,8 @@ input[type="checkbox"]:focus{outline:2px solid #0b3d2e33;outline-offset:2px}
 <!-- Search -->
 <div class="section" id="searchSec" style="display:flex; flex-direction:column; gap:10px;">
   <div><b>Search Manually: *Hint*</b> Search Toric RX by typing in this format: S-5.00 C-1.25 x180</div>
-  <div><input type="text" id="searchRE" placeholder="Search Bar Right" style="width:50%"></div>
-  <div><input type="text" id="searchLE" placeholder="Search Bar Left (Use if needed)" style="width:50%"></div>
+  <div><input type="text" id="searchRE" placeholder="Search Bar Right" style="width:100%"></div>
+  <div><input type="text" id="searchLE" placeholder="Search Bar Left (Use if needed)" style="width:100%"></div>
 </div>
 
 <!-- Action buttons -->
