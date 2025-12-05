@@ -6,22 +6,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1=" />
 <style>
 
-#wrapOuter {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  overflow: hidden;
-}
-
-  #wrap1 {
-    width: 1000px;
-    margin: 0 auto;
+  /* Fixed design width */
+  #fixedWrapper {
+    width: 1200px;
     transform-origin: top center;
-    transition: transform 0.1s linear;
+    margin: 0 auto;
   }
 
-  #zoomSlider {
-    width: 200px;
+  /* Auto-scale based on device width */
+  @media screen and (max-width: 1200px) {
+    #fixedWrapper {
+      transform: scale(calc(100vw / 1200));
+    }
   }
 
 
@@ -131,40 +127,17 @@ input[type="checkbox"]:focus{outline:2px solid #0b3d2e33;outline-offset:2px}
 
 
 
-<div style="height:200px"></div>
-<!-- Slider -->
-<div style="width:100%; text-align:center; margin:0px 0;">
- <b>Slide to zoom</b>
-<br> <input type="range" 
-         id="zoomSlider" 
-         min="0.3" 
-         max="1" 
-         step="0.01" 
-         value="1"
-         style="width:220px;">
-  
-
- <h1>
-    Kiara Optometry Contact Lens Search<br><br>  </h1>
+ 
 </div>
 
 
-<div id="wrapOuter">
-<div id="wrap1">
-
-<script>
-  const slider = document.getElementById("zoomSlider");
-  const wrap = document.getElementById("wrap1");
-
-  slider.addEventListener("input", () => {
-    wrap.style.transform = `scale(${slider.value})`;
-  });
-</script>
+<div id="fixedwrapper">
 
 <!-- Main content (hidden until password ok) -->
 <div class="container" id="content" style="display:none;">
 
-
+<h1>
+    Kiara Optometry Contact Lens Search<br><br>  </h1>
 
 <div class="section">
 <div class="section3">
