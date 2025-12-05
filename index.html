@@ -235,89 +235,76 @@ input[type="checkbox"]:focus{outline:2px solid #0b3d2e33;outline-offset:2px}
     <!-- Converter (Pro mode can hide/show) -->
     <div class="section2" id="specToCL">
       <h2>Spectacle → Contact Lens Power Converter</h2>
+<div style="display:flex; flex-direction:column; gap:10px;">
 
-      <!-- Input Row -->
-      <div style="display:flex; align-items:flex-end; flex-wrap:wrap; gap:10px;">
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <b>RE Specs :</b>
-          Sph <input id="sph-re" type="number" step="0.25" style="width:70px;text-align:center">
-          Cyl <input id="cyl-re" type="number" step="0.25" style="width:70px;text-align:center">
-          Axis <input id="axis-re" type="number" min="0" max="180" step="1" style="width:70px;text-align:center">
-        </div>
+<!-- RE Specs -->
+<div><b>RE Specs :</b></div>
+<div>Sph <br><input id="sph-re" type="number" step="0.25" style="width:50%; text-align:center"></div>
+<div>Cyl <br><input id="cyl-re" type="number" step="0.25" style="width:50%; text-align:center"></div>
+<div>Axis <br><input id="axis-re" type="number" min="0" max="180" step="1" style="width:50%; text-align:center"></div>
 
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <b>LE Specs :</b>
-          Sph <input id="sph-le" type="number" step="0.25" style="width:70px;text-align:center">
-          Cyl <input id="cyl-le" type="number" step="0.25" style="width:70px;text-align:center">
-          Axis <input id="axis-le" type="number" min="0" max="180" step="1" style="width:70px;text-align:center">
-        </div>
-
-        <button id="convertBtn">Convert</button>
-      </div>
-
-      <!-- Results + Auto-fill Panel -->
-      <div style="display:flex; gap:15px; margin-top:12px; align-items:flex-start; flex-wrap:wrap;">
-        <div id="clOut" class="lens-card"
-            style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:10px;
-                    background:#fffff0; border:1px solid #ccc; border-radius:10px; padding:12px;">
-          <div>
-            <div style="font-weight:700;margin-bottom:6px;">RE Results</div>
-            <div id="reResult"></div>
-          </div>
-          <div>
-            <div style="font-weight:700;margin-bottom:6px;">LE Results</div>
-            <div id="leResult"></div>
-          </div>
-        </div>
-
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <button id="auto1">Auto-fill 1</button>
-          <button id="auto2">Auto-fill 2</button>
-          <button id="auto3">Auto-fill 3</button>
-          <button id="autoSE">Auto-fill SE</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Search -->
-    <div class="section" id="searchSec">
-      <div style="display:flex; gap:15px; margin-top:12px; align-items:flex-start; flex-wrap:wrap;">
-        <span><b>Search Manually: *Hint*</b> Search Toric RX by typing in this format: S-5.00 C-1.25 x180</span>
-      </div>
-      <div class="search-row">
-        <input type="text" id="searchRE" placeholder="Search Bar Right">
-        <input type="text" id="searchLE" placeholder="Search Bar Left (Use if needed)">
-      </div>
-    </div>
-
-    <!-- Action buttons -->
-    <div class="section" id="actionsSec">
-      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-        <button id="promoBtn" style="font-size:12px" disabled>Show Promo Only</button>
-        <div style="height:10px"></div>
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <button id="showBtn" style="font-size:12px" disabled>Loading...</button>
-          <span id="btnText" style="opacity:0.8;"></span>
-<button id="resetBtn" style="font-size:12px">Reset / Clear All</button>
-        </div>
+<!-- LE Specs -->
+<div><b>LE Specs :</b></div>
+<div>Sph <br><input id="sph-le" type="number" step="0.25" style="width:50%; text-align:center"></div>
+<div>Cyl <br><input id="cyl-le" type="number" step="0.25" style="width:50%; text-align:center"></div>
+<div>Axis <br><input id="axis-le" type="number" min="0" max="180" step="1" style="width:50%; text-align:center"></div>
 
 
-    <!-- Sort bar + Results -->
-    <div id="sortBar">
-      <b>Sort:</b>
-      <select id="sortSelect" style="padding:4px; font-size:12px; border-radius:10px">
-        <option value="price-asc">Price Low → High</option>
-        <option value="price-desc">Price High → Low</option>
-        <option value="valuepair-asc">Value/Pair Low → High</option>
-        <option value="valuepair-desc">Value/Pair High → Low</option>
-        <option value="comfort-desc">Comfort Premium → Basic</option>
-        <option value="comfort-asc">Comfort Basic → Premium</option>
-        <option value="hours-desc">Wearing hours Long → Short</option>
-        <option value="hours-asc">Wearing hours Short → Long</option>
-      </select>
-    </div>
-      </div>
-    </div>
+  <button id="convertBtn">Convert</button>
+
+  <!-- RE & LE Results -->
+  <div style="background:#fffff0; border:1px solid #ccc; border-radius:10px; padding:12px;">
+    <div><b>RE Results</b></div>
+    <div id="reResult"></div>
+  </div>
+
+  <div style="background:#fffff0; border:1px solid #ccc; border-radius:10px; padding:12px;">
+    <div><b>LE Results</b></div>
+    <div id="leResult"></div>
+  </div>
+
+  <!-- Auto-fill buttons -->
+  <button id="auto1">Auto-fill 1</button>
+  <button id="auto2">Auto-fill 2</button>
+  <button id="auto3">Auto-fill 3</button>
+  <button id="autoSE">Auto-fill SE</button>
+
+</div>
+</DIV>
+
+
+<!-- Search -->
+<div class="section" id="searchSec" style="display:flex; flex-direction:column; gap:10px;">
+  <div><b>Search Manually: *Hint*</b> Search Toric RX by typing in this format: S-5.00 C-1.25 x180</div>
+  <div><input type="text" id="searchRE" placeholder="Search Bar Right" style="width:50%"></div>
+  <div><input type="text" id="searchLE" placeholder="Search Bar Left (Use if needed)" style="width:50%"></div>
+</div>
+
+<!-- Action buttons -->
+<div class="section" id="actionsSec" style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+  <div><button id="promoBtn" style="font-size:12px; width:100%" disabled>Show Promo Only</button></div>
+  <div><button id="showBtn" style="font-size:12px; width:100%" disabled>Loading...</button></div>
+  <div><span id="btnText" style="opacity:0.8; display:block;"></span></div>
+  <div><button id="resetBtn" style="font-size:12px; width:100%">Reset / Clear All</button></div>
+</div>
+
+<!-- Sort bar + Results -->
+<div id="sortBar" style="display:flex; flex-direction:column; gap:5px; margin-top:12px;">
+  <div><b>Sort:</b></div>
+  <div>
+    <select id="sortSelect" style="padding:4px; font-size:12px; border-radius:10px; width:100%">
+      <option value="price-asc">Price Low → High</option>
+      <option value="price-desc">Price High → Low</option>
+      <option value="valuepair-asc">Value/Pair Low → High</option>
+      <option value="valuepair-desc">Value/Pair High → Low</option>
+      <option value="comfort-desc">Comfort Premium → Basic</option>
+      <option value="comfort-asc">Comfort Basic → Premium</option>
+      <option value="hours-desc">Wearing hours Long → Short</option>
+      <option value="hours-asc">Wearing hours Short → Long</option>
+    </select>
+  </div>
+</div>
+
 
 <div id="compareArea"></div>
 
