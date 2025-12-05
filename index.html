@@ -5,6 +5,21 @@
 <title>Kiara Optometry Contact Lens Search</title>
 <meta name="viewport" content="width=device-width, initial-scale=1=" />
 <style>
+
+  #wrap1 {
+    width: 1000px;
+    margin: 0 auto;
+    transform-origin: top center;
+    transition: transform 0.1s linear;
+  }
+
+  #zoomSlider {
+    width: 500px;
+  }
+
+
+
+
 /* === Lightbox (shared) === */
 #imgZoom{position:fixed;inset:0;display:none;background:rgba(0,0,0,.75);align-items:center;justify-content:center;z-index:10000;cursor:zoom-out}
 #imgZoom.open{display:flex}
@@ -102,9 +117,24 @@ input[type="checkbox"]:focus{outline:2px solid #0b3d2e33;outline-offset:2px}
 </head>
 <body>
 
+
+
+<div id="wrap1">
 <!-- 🔒 Locked screen -->
 <div style="font-size:10px" id="overlay">🔒 Entering password...</div>
 
+<!-- Slider -->
+<input type="range" id="zoomSlider" min="0.3" max="1.2" step="0.01" value="1">
+
+
+<script>
+  const slider = document.getElementById("zoomSlider");
+  const wrap = document.getElementById("wrap1");
+
+  slider.addEventListener("input", () => {
+    wrap.style.transform = `scale(${slider.value})`;
+  });
+</script>
 
 
 
@@ -1380,7 +1410,7 @@ buildCards = function(list){
 
 
 
-
+</DIV>
 
 
 
@@ -1393,10 +1423,3 @@ buildCards = function(list){
 
 
 </html>
-
-
-
-
-
-
-
